@@ -1,0 +1,9 @@
+{% extends 'layout.html' %}
+{% block content %}
+<h2>Список таблиц базы: {{ db_name }}</h2>
+<ul>
+    {% for table in tables %}
+        <li><a href="{{ url_for('view_table', name=table) }}">{{ table }}</a></li>
+    {% endfor %}
+</ul>
+{% endblock %}

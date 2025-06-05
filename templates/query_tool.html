@@ -1,0 +1,26 @@
+{% extends 'layout.html' %}
+{% block content %}
+<h2>SQL-запрос</h2>
+<form method="POST">
+    <textarea name="query" rows="6" cols="80">{{ request.form.query or '' }}</textarea><br>
+    <input type="submit" value="Выполнить">
+</form>
+
+<h3>Примеры:</h3>
+<ul>
+    <li><code>SELECT * FROM users;</code></li>
+    <li><code>INSERT INTO users (name, age) VALUES ('Anna', 23);</code></li>
+    <li><code>UPDATE users SET age = 30 WHERE name = 'Anna';</code></li>
+    <li><code>DELETE FROM users WHERE age &lt; 18;</code></li>
+    <li><code>CREATE TABLE test (id INTEGER PRIMARY KEY, name TEXT);</code></li>
+</ul>
+
+{% if error %}
+    <p style="color:red;">Ошибка: {{ error }}</p>
+{% endif %}
+
+{% if result %}
+    <h3>Результат:</h3>
+    <pre>{{ result }}</pre>
+{% endif %}
+{% endblock %}

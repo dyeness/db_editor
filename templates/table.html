@@ -1,0 +1,35 @@
+{% extends 'layout.html' %}
+{% block content %}
+<h2>Таблица: {{ table }}</h2>
+<table border="1">
+    <tr>
+        <th>ID</th>
+        {% for col in columns %}
+            <th>{{ col }}</th>
+        {% endfor %}
+        <th>Действия</th>
+    </tr>
+    {% for row in rows %}
+    <tr>
+        <td>{{ row[0] }}</td>
+        <form method="POST" action="{{ url_for('update_row', table=table, rowid=row[0]) }}">
+        {% for i in range(columns|length) %}
+            <td><input type="text" name="{{ columns[i] }}" value="{{ row[i+1] }}"></td>
+        {% endfor %}
+        <td>
+            <button type="submit">💾</button>
+            <a href="{{ url_for('delete_row', table=table, rowid=row[0]) }}">Удалить</a>
+        </td>
+        </form>
+    </tr>
+    {% endfor %}
+</table>
+
+<h3>Добавить запись</h3>
+<form method="POST" action="{{ url_for('add_row', table=table) }}">
+    {% for col in columns %}
+        <label>{{ col }}: <input name="{{ col }}"></label><br>
+    {% endfor %}
+    <input type="submit" value="Добавить">
+</form>
+{% endblock %}
