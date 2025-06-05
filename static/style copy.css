@@ -20,7 +20,6 @@ body {
 h1, h2, h3 {
     color: #ff0033;
     text-shadow: 0 0 5px #ff0033aa;
-    margin-bottom: 10px;
 }
 
 a {
@@ -31,7 +30,7 @@ a {
 hr {
     border: none;
     border-top: 1px solid #333;
-    margin: 25px 0;
+    margin: 20px 0;
 }
 
 input, textarea, select {
@@ -39,7 +38,7 @@ input, textarea, select {
     color: #fff;
     border: 1px solid #444;
     padding: 6px 10px;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
     border-radius: 5px;
     width: 100%;
     transition: all 0.3s;
@@ -71,7 +70,6 @@ input:focus, textarea:focus {
 .btn.small {
     padding: 5px 10px;
     font-size: 0.9em;
-    margin: 4px 2px;
 }
 
 .btn.red {
@@ -84,13 +82,12 @@ input:focus, textarea:focus {
 
 .upload-area {
     display: inline-block;
-    padding: 12px;
+    padding: 10px;
     border: 2px dashed #ff0033;
     border-radius: 10px;
     cursor: pointer;
     text-align: center;
     transition: background 0.3s;
-    margin-bottom: 20px;
 }
 
 .upload-area.dragover {
@@ -100,7 +97,7 @@ input:focus, textarea:focus {
 .data-table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
 }
 
 .data-table th, .data-table td {
@@ -113,27 +110,16 @@ input:focus, textarea:focus {
     width: 100%;
 }
 
-.main-section {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 30px;
-    margin-top: 20px;
-}
-
 .left-panel {
-    flex: 0 0 260px;
+    width: 20%;
+    float: left;
     padding-right: 20px;
     border-right: 1px solid #333;
 }
 
 .right-panel {
-    flex: 1;
-    min-width: 500px;
-}
-
-.table-wrapper {
-    overflow-x: auto;
-    margin-bottom: 20px;
+    width: 75%;
+    float: right;
 }
 
 .sql-block {
@@ -151,29 +137,6 @@ pre {
 
 .error {
     color: #ff6666;
-}
-
-.help-toggle {
-    margin-top: 40px;
-    text-align: center;
-}
-
-.help-section {
-    margin-top: 20px;
-    background: rgba(255, 255, 255, 0.03);
-    padding: 20px;
-    border-radius: 10px;
-    border: 1px solid #333;
-}
-
-.help-section h2 {
-    margin-top: 0;
-    color: #ff0033;
-}
-
-.help-section code {
-    font-family: monospace;
-    color: #ffaaaa;
 }
 
 @keyframes fadeIn {

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>SQLite DB Editor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container glass">
+        <h1>SQLite DB Editor</h1>
+
+        <div class="top-bar">
+            <!-- Загрузка .db -->
+            <form id="uploadForm" method="POST" action="/load_db" enctype="multipart/form-data">
+                <label class="upload-area" id="drop-area">
+                    Перетащите .db сюда или выберите
+                    <input type="file" name="file" id="fileElem" accept=".db" hidden>
+                    <span class="btn" onclick="document.getElementById('fileElem').click()">Выбрать файл</span>
+                </label>
+            </form>
+
+            <!-- Кнопка скачивания -->
+            <a href="/download_db" class="btn">💾 Скачать .db</a>
+        </div>
+
+        <hr>
+
+        <div class="main-section">
+            <div class="left-panel">
+                <h2>📦 Таблицы</h2>
+                <ul>
+                    {% for table in tables %}
+                        <li><a class="btn small" href="?table={{ table }}">{{ table }}</a></li>
+                    {% endfor %}
+                </ul>
+
+                <hr>
+                <h3>🧱 Создать таблицу</h3>
+                <form method="POST" action="/create_table">
+                    <input name="table_name" placeholder="Имя таблицы" required>
+                    <textarea name="columns" placeholder="id INTEGER PRIMARY KEY, name TEXT" required></textarea>
+                    <button class="btn small" type="submit">Создать</button>
+                </form>
+            </div>
+
+            <div class="right-panel">
+                {% if selected_table %}
+                    <h2>🔧 Таблица: {{ selected_table }}</h2>
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    {% for col in columns %}
+                                        <th>{{ col }}</th>
+                                    {% endfor %}
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in rows %}
+                                <tr>
+                                    <form method="POST" action="/update/{{ selected_table }}/{{ row[0] }}">
+                                        <td>{{ row[0] }}</td>
+                                        {% for i in range(columns|length) %}
+                                            <td><input name="{{ columns[i] }}" value="{{ row[i+1] }}"></td>
+                                        {% endfor %}
+                                        <td>
+                                            <button type="submit" class="btn small">💾</button>
+                                            <a class="btn small red" href="/delete/{{ selected_table }}/{{ row[0] }}">Удалить</a>
+                                        </td>
+                                    </form>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3>➕ Добавить запись</h3>
+                    <form method="POST" action="/add/{{ selected_table }}">
+                        {% for col in columns %}
+                            <input name="{{ col }}" placeholder="{{ col }}">
+                        {% endfor %}
+                        <button type="submit" class="btn">Добавить</button>
+                    </form>
+                {% endif %}
+
+                <div class="sql-block">
+                    <h2>🧠 SQL-запрос</h2>
+                    <form method="POST" action="/query">
+                        <textarea name="query" placeholder="SELECT * FROM users;"></textarea>
+                        <button class="btn">Выполнить</button>
+                    </form>
+
+                    {% if result %}
+                        <h4>Результат:</h4>
+                        <pre>{{ result }}</pre>
+                    {% elif error %}
+                        <h4 class="error">Ошибка: {{ error }}</h4>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="help-toggle">
+            <button class="btn small" onclick="toggleHelp()">ℹ Помощь</button>
+        </div>
+
+        <div class="help-section" id="helpSection" style="display: none;">
+            <h2>ℹ Помощь</h2>
+            <ul>
+                <li>🔧 <b>Создание таблиц</b>: <code>id INTEGER PRIMARY KEY, name TEXT</code></li>
+                <li>📥 <b>Загрузка базы</b>: перетащи .db или выбери вручную</li>
+                <li>📝 <b>Редактирование</b>: меняй значения и нажимай 💾</li>
+                <li>🧠 <b>SQL-запросы</b>: <code>SELECT * FROM users;</code></li>
+                <li>💾 <b>Скачать базу</b>: кнопка "Скачать .db" откроет диалог сохранения</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+    const dropArea = document.getElementById("drop-area");
+    const uploadForm = document.getElementById("uploadForm");
+    const fileElem = document.getElementById("fileElem");
+
+    dropArea.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dropArea.classList.add("dragover");
+    });
+
+    dropArea.addEventListener("dragleave", () => {
+        dropArea.classList.remove("dragover");
+    });
+
+    dropArea.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dropArea.classList.remove("dragover");
+        fileElem.files = e.dataTransfer.files;
+        uploadForm.submit();
+    });
+
+    function toggleHelp() {
+        const help = document.getElementById("helpSection");
+        help.style.display = (help.style.display === "none") ? "block" : "none";
+    }
+    </script>
+</body>
+</html>
