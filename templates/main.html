@@ -30,11 +30,11 @@
         <div class="main-section">
             <div class="left-panel">
                 <h2>📦 Таблицы</h2>
-                <ul>
+                <div class="table-list">
                     {% for table in tables %}
-                        <li><a class="btn small" href="?table={{ table }}">{{ table }}</a></li>
+                        <a class="btn small table-link" href="?table={{ table }}">{{ table }}</a>
                     {% endfor %}
-                </ul>
+                </div>
 
                 <hr>
                 <h3>🧱 Создать таблицу</h3>
@@ -162,5 +162,8 @@
         });
     });
     </script>
+    <footer>
+    <p>© 2025 dyeness</p>
+</footer>
 </body>
 </html>

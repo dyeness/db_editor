@@ -208,10 +208,32 @@ pre {
     white-space: pre-wrap;
 }
 
+.table-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.table-link {
+    display: inline-block;
+    text-align: left;
+    white-space: nowrap;
+    width: 90%;
+}
 .error-terminal {
     color: #ff6666;
 }
-
+footer {
+    margin-top: 60px;
+    padding: 20px;
+    text-align: center;
+    color: #777;
+    font-size: 14px;
+    border-top: 1px solid #333;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(5px);
+}
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to   { opacity: 1; transform: translateY(0); }
