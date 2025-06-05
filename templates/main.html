@@ -6,20 +6,22 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <div class="container glass">
-        <h1>SQLite DB Editor</h1>
+    <header>
+        <h1>🔥 SQLite Editor — Obsidian & Scarlet 🔥</h1>
+    </header>
 
+    <div class="container glass">
         <div class="top-bar">
             <!-- Загрузка .db -->
             <form id="uploadForm" method="POST" action="/load_db" enctype="multipart/form-data">
                 <label class="upload-area" id="drop-area">
                     Перетащите .db сюда или выберите
-                    <input type="file" name="file" id="fileElem" accept=".db" hidden>
-                    <span class="btn" onclick="document.getElementById('fileElem').click()">Выбрать файл</span>
+                    <input type="file" name="file" id="fileElem" accept=".db" onchange="document.getElementById('uploadForm').submit()">
+                    <span class="btn" onclick="document.getElementById('fileElem').click()">📂 Загрузить .db</span>
                 </label>
             </form>
 
-            <!-- Кнопка скачивания -->
+            <!-- Скачивание базы -->
             <a href="/download_db" class="btn">💾 Скачать .db</a>
         </div>
 
@@ -87,17 +89,12 @@
 
                 <div class="sql-block">
                     <h2>🧠 SQL-запрос</h2>
-                    <form method="POST" action="/query">
+                    <form id="queryForm">
                         <textarea name="query" placeholder="SELECT * FROM users;"></textarea>
-                        <button class="btn">Выполнить</button>
+                        <button class="btn" type="submit">Выполнить</button>
                     </form>
 
-                    {% if result %}
-                        <h4>Результат:</h4>
-                        <pre>{{ result }}</pre>
-                    {% elif error %}
-                        <h4 class="error">Ошибка: {{ error }}</h4>
-                    {% endif %}
+                    <div id="terminal"></div>
                 </div>
             </div>
         </div>
@@ -110,10 +107,9 @@
             <h2>ℹ Помощь</h2>
             <ul>
                 <li>🔧 <b>Создание таблиц</b>: <code>id INTEGER PRIMARY KEY, name TEXT</code></li>
-                <li>📥 <b>Загрузка базы</b>: перетащи .db или выбери вручную</li>
-                <li>📝 <b>Редактирование</b>: меняй значения и нажимай 💾</li>
+                <li>📥 <b>Загрузка базы</b>: выбери .db или перетащи</li>
+                <li>📝 <b>Редактируй</b> → нажимай 💾</li>
                 <li>🧠 <b>SQL-запросы</b>: <code>SELECT * FROM users;</code></li>
-                <li>💾 <b>Скачать базу</b>: кнопка "Скачать .db" откроет диалог сохранения</li>
             </ul>
         </div>
     </div>
@@ -143,6 +139,28 @@
         const help = document.getElementById("helpSection");
         help.style.display = (help.style.display === "none") ? "block" : "none";
     }
+
+    // Терминал SQL-запросов (AJAX)
+    const form = document.getElementById('queryForm');
+    const terminal = document.getElementById('terminal');
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const data = new FormData(form);
+        fetch('/query', {
+            method: 'POST',
+            body: data
+        }).then(res => res.json()).then(res => {
+            if (res.error) {
+                terminal.innerHTML = `<pre class="error-terminal">Ошибка: ${res.error}</pre>`;
+            } else if (res.result && res.result.length > 0) {
+                terminal.innerHTML = `<pre>${JSON.stringify(res.result, null, 2)}</pre>`;
+            } else {
+                terminal.innerHTML = `<pre>✅ Успешно</pre>`;
+            }
+        }).catch(err => {
+            terminal.innerHTML = `<pre class="error-terminal">Ошибка: ${err}</pre>`;
+        });
+    });
     </script>
 </body>
 </html>

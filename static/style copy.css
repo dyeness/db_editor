@@ -6,10 +6,25 @@ body {
     background-image: radial-gradient(circle at 10% 10%, #1a1a1a, #0d0d0d);
 }
 
+header {
+    text-align: center;
+    background: #1a1a1a;
+    padding: 25px 10px;
+    border-bottom: 2px solid #ff0033;
+    margin-bottom: 30px;
+}
+
+header h1 {
+    color: #ff0033;
+    font-size: 26px;
+    margin: 0;
+    text-shadow: 0 0 6px #ff3366;
+}
+
 .container {
     max-width: 1400px;
     margin: 30px auto;
-    padding: 20px;
+    padding: 30px;
     border-radius: 15px;
     backdrop-filter: blur(12px);
     background: rgba(15, 15, 15, 0.7);
@@ -20,6 +35,7 @@ body {
 h1, h2, h3 {
     color: #ff0033;
     text-shadow: 0 0 5px #ff0033aa;
+    margin-bottom: 10px;
 }
 
 a {
@@ -30,16 +46,16 @@ a {
 hr {
     border: none;
     border-top: 1px solid #333;
-    margin: 20px 0;
+    margin: 30px 0;
 }
 
 input, textarea, select {
     background: rgba(255, 255, 255, 0.05);
     color: #fff;
     border: 1px solid #444;
-    padding: 6px 10px;
-    margin-bottom: 8px;
-    border-radius: 5px;
+    padding: 8px 12px;
+    margin-bottom: 14px;
+    border-radius: 6px;
     width: 100%;
     transition: all 0.3s;
 }
@@ -54,10 +70,10 @@ input:focus, textarea:focus {
     background: #ff0033;
     color: white;
     border: none;
-    padding: 8px 14px;
-    border-radius: 5px;
+    padding: 10px 16px;
+    border-radius: 6px;
     cursor: pointer;
-    margin-top: 8px;
+    margin-top: 10px;
     font-weight: bold;
     transition: transform 0.2s ease, background 0.3s ease;
 }
@@ -68,8 +84,9 @@ input:focus, textarea:focus {
 }
 
 .btn.small {
-    padding: 5px 10px;
+    padding: 6px 12px;
     font-size: 0.9em;
+    margin: 5px 3px;
 }
 
 .btn.red {
@@ -82,12 +99,14 @@ input:focus, textarea:focus {
 
 .upload-area {
     display: inline-block;
-    padding: 10px;
+    padding: 14px;
     border: 2px dashed #ff0033;
     border-radius: 10px;
     cursor: pointer;
     text-align: center;
     transition: background 0.3s;
+    margin-bottom: 25px;
+    margin-right: 20px;
 }
 
 .upload-area.dragover {
@@ -97,12 +116,12 @@ input:focus, textarea:focus {
 .data-table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
 }
 
 .data-table th, .data-table td {
     border: 1px solid #444;
-    padding: 6px 10px;
+    padding: 8px 12px;
     text-align: left;
 }
 
@@ -110,16 +129,28 @@ input:focus, textarea:focus {
     width: 100%;
 }
 
+.main-section {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 50px;
+    margin-top: 30px;
+}
+
 .left-panel {
-    width: 20%;
-    float: left;
-    padding-right: 20px;
+    flex: 0 0 280px;
+    padding-right: 30px;
     border-right: 1px solid #333;
 }
 
 .right-panel {
-    width: 75%;
-    float: right;
+    flex: 1;
+    min-width: 600px;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+    margin-top: 10px;
+    margin-bottom: 30px;
 }
 
 .sql-block {
@@ -128,14 +159,56 @@ input:focus, textarea:focus {
 
 pre {
     background: #111;
-    padding: 10px;
-    border-radius: 5px;
+    padding: 12px;
+    border-radius: 6px;
     overflow: auto;
     color: #0f0;
     border: 1px solid #444;
+    font-size: 14px;
+    line-height: 1.5;
 }
 
 .error {
+    color: #ff6666;
+}
+
+.help-toggle {
+    margin-top: 50px;
+    text-align: center;
+}
+
+.help-section {
+    margin-top: 25px;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 25px;
+    border-radius: 10px;
+    border: 1px solid #333;
+}
+
+.help-section h2 {
+    margin-top: 0;
+    color: #ff0033;
+}
+
+.help-section code {
+    font-family: monospace;
+    color: #ffaaaa;
+}
+
+#terminal {
+    margin-top: 25px;
+    padding: 12px;
+    background: #111;
+    color: #fff;
+    font-family: monospace;
+    border-radius: 6px;
+    border: 1px solid #333;
+    max-height: 300px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+}
+
+.error-terminal {
     color: #ff6666;
 }
 

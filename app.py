@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, send_file
+from flask import Flask, render_template, request, redirect, url_for, send_file, jsonify
 import sqlite3, os, threading, webbrowser
 from werkzeug.utils import secure_filename
 import shutil
@@ -62,21 +62,18 @@ def delete_row(table, rowid):
 @app.route('/query', methods=['POST'])
 def custom_query():
     query = request.form['query']
-    error = None
-    result = None
     try:
         with sqlite3.connect(DB_PATH) as conn:
             cur = conn.cursor()
             cur.execute(query)
             if query.strip().upper().startswith("SELECT"):
                 result = cur.fetchall()
+                return jsonify({'result': result})
             else:
                 conn.commit()
+                return jsonify({'result': []})
     except Exception as e:
-        error = str(e)
-
-    tables = get_tables()
-    return render_template('main.html', tables=tables, result=result, error=error, selected_table=None, columns=[], rows=[])
+        return jsonify({'error': str(e)})
 
 @app.route('/load_db', methods=['POST'])
 def load_db():
