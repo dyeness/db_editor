@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>ER-диаграмма</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({ startOnLoad: true });
+    </script>
+</head>
+<body>
+    <header>
+        <h1>📊 ER-диаграмма базы данных</h1>
+    </header>
+
+    <div class="container glass">
+        <pre class="mermaid">
+{{ diagram }}
+        </pre>
+        <a href="/" class="btn">⬅ Назад</a>
+    </div>
+    
+<footer class="sticky-footer">
+    <p>© 2025 dyeness | <a href="https://github.com/dyeness" target="_blank">GitHub</a></p>
+</footer>
+</body>
+</html>

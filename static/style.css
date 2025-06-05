@@ -249,6 +249,41 @@ footer {
     background: rgba(0, 0, 0, 0.3);
     backdrop-filter: blur(5px);
 }
+.mermaid {
+    background: #111;
+    padding: 20px;
+    border-radius: 10px;
+    overflow-x: auto;
+    color: #fff;
+    border: 1px solid #333;
+}
+.sticky-footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    padding: 15px;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(5px);
+    color: #777;
+    border-top: 1px solid #333;
+    font-size: 14px;
+    z-index: 1000;
+}
+
+.sticky-footer a {
+    color: #ff0033;
+    text-decoration: none;
+}
+
+.sticky-footer a:hover {
+    text-decoration: underline;
+}
+
+body {
+    padding-bottom: 60px; /* чтобы контент не наехал на футер */
+}
 
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }

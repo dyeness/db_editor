@@ -1,112 +1,162 @@
-from flask import Flask, render_template, request, redirect, url_for, send_file, jsonify
-import sqlite3, os, threading, webbrowser
+from flask import Flask, render_template, request, redirect, send_file, url_for, jsonify
+import sqlite3
+import os
 from werkzeug.utils import secure_filename
-import shutil
+from datetime import datetime
 
 app = Flask(__name__)
-UPLOAD_FOLDER = './'
-DB_PATH = 'database.db'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+UPLOAD_FOLDER = 'uploaded'
+DB_PATH = os.path.join(UPLOAD_FOLDER, 'current.db')
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-def get_tables():
+
+# ===== 📦 ЗАГРУЗКА БАЗЫ ДАННЫХ =====
+@app.route('/load_db', methods=['POST'])
+def load_db():
+    file = request.files['file']
+    if file.filename.endswith('.db'):
+        path = os.path.join(UPLOAD_FOLDER, 'current.db')
+        file.save(path)
+    return redirect(url_for('main'))
+
+
+# ===== 💾 СКАЧИВАНИЕ АКТУАЛЬНОЙ БАЗЫ =====
+@app.route('/download_db')
+def download_db():
+    return send_file(DB_PATH, as_attachment=True, download_name='database.db')
+
+
+# ===== 🏠 ГЛАВНАЯ СТРАНИЦА =====
+@app.route('/', methods=['GET'])
+def main():
+    if not os.path.exists(DB_PATH):
+        return render_template("main.html", tables=[], selected_table=None)
+
     with sqlite3.connect(DB_PATH) as conn:
         cur = conn.cursor()
         cur.execute("SELECT name FROM sqlite_master WHERE type='table'")
-        return [row[0] for row in cur.fetchall()]
+        tables = [row[0] for row in cur.fetchall()]
 
-def get_table_data(table):
-    with sqlite3.connect(DB_PATH) as conn:
-        cur = conn.cursor()
-        cur.execute(f"PRAGMA table_info({table})")
-        columns = [col[1] for col in cur.fetchall()]
-        cur.execute(f"SELECT rowid, * FROM {table}")
-        rows = cur.fetchall()
-    return columns, rows
+        selected_table = request.args.get('table')
+        if selected_table:
+            cur.execute(f"PRAGMA table_info({selected_table})")
+            columns = [row[1] for row in cur.fetchall()]
+            cur.execute(f"SELECT * FROM {selected_table}")
+            rows = cur.fetchall()
+            return render_template("main.html", tables=tables, selected_table=selected_table, columns=columns, rows=rows)
 
-@app.route('/')
-def index():
-    tables = get_tables()
-    selected_table = request.args.get('table')
-    columns, rows = [], []
-    if selected_table:
-        columns, rows = get_table_data(selected_table)
-    return render_template('main.html', tables=tables, selected_table=selected_table, columns=columns, rows=rows)
+        return render_template("main.html", tables=tables, selected_table=None)
 
+
+# ===== ➕ ДОБАВЛЕНИЕ ЗАПИСИ =====
 @app.route('/add/<table>', methods=['POST'])
-def add_row(table):
-    values = tuple(request.form.get(col) for col in request.form)
-    columns = ','.join(request.form.keys())
-    placeholders = ','.join('?' * len(values))
+def add_entry(table):
+    data = [request.form[col] for col in request.form]
+    placeholders = ', '.join(['?'] * len(data))
+    columns = ', '.join(request.form.keys())
+
     with sqlite3.connect(DB_PATH) as conn:
-        cur = conn.cursor()
-        cur.execute(f"INSERT INTO {table} ({columns}) VALUES ({placeholders})", values)
-    return redirect(url_for('index', table=table))
+        conn.execute(f"INSERT INTO {table} ({columns}) VALUES ({placeholders})", data)
+        conn.commit()
+    return redirect(f"/?table={table}")
 
-@app.route('/update/<table>/<int:rowid>', methods=['POST'])
-def update_row(table, rowid):
-    columns = request.form.keys()
-    values = [request.form[col] for col in columns]
-    assignments = ", ".join(f"{col}=?" for col in columns)
+
+# ===== 💾 ОБНОВЛЕНИЕ ЗАПИСИ =====
+@app.route('/update/<table>/<int:row_id>', methods=['POST'])
+def update_entry(table, row_id):
+    updates = [f"{col} = ?" for col in request.form]
+    values = list(request.form.values())
+
     with sqlite3.connect(DB_PATH) as conn:
-        cur = conn.cursor()
-        cur.execute(f"UPDATE {table} SET {assignments} WHERE rowid=?", (*values, rowid))
-    return redirect(url_for('index', table=table))
+        conn.execute(f"UPDATE {table} SET {', '.join(updates)} WHERE id = ?", values + [row_id])
+        conn.commit()
+    return redirect(f"/?table={table}")
 
-@app.route('/delete/<table>/<int:rowid>')
-def delete_row(table, rowid):
+
+# ===== 🗑 УДАЛЕНИЕ ЗАПИСИ =====
+@app.route('/delete/<table>/<int:row_id>')
+def delete_entry(table, row_id):
     with sqlite3.connect(DB_PATH) as conn:
-        cur = conn.cursor()
-        cur.execute(f"DELETE FROM {table} WHERE rowid = ?", (rowid,))
-    return redirect(url_for('index', table=table))
+        conn.execute(f"DELETE FROM {table} WHERE id = ?", (row_id,))
+        conn.commit()
+    return redirect(f"/?table={table}")
 
-@app.route('/query', methods=['POST'])
-def custom_query():
-    query = request.form['query']
-    try:
-        with sqlite3.connect(DB_PATH) as conn:
-            cur = conn.cursor()
-            cur.execute(query)
-            if query.strip().upper().startswith("SELECT"):
-                result = cur.fetchall()
-                return jsonify({'result': result})
-            else:
-                conn.commit()
-                return jsonify({'result': []})
-    except Exception as e:
-        return jsonify({'error': str(e)})
 
-@app.route('/load_db', methods=['POST'])
-def load_db():
-    global DB_PATH
-    file = request.files['file']
-    if file and file.filename.endswith('.db'):
-        filename = secure_filename(file.filename)
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(filepath)
-        DB_PATH = filepath
-    return redirect(url_for('index'))
-
+# ===== 🧱 СОЗДАНИЕ ТАБЛИЦЫ =====
 @app.route('/create_table', methods=['POST'])
 def create_table():
-    table_name = request.form.get("table_name")
-    column_defs = request.form.get("columns")
-    if table_name and column_defs:
-        try:
-            with sqlite3.connect(DB_PATH) as conn:
-                cur = conn.cursor()
-                cur.execute(f"CREATE TABLE {table_name} ({column_defs})")
+    name = request.form['table_name']
+    columns = request.form['columns']
+    with sqlite3.connect(DB_PATH) as conn:
+        conn.execute(f"CREATE TABLE IF NOT EXISTS {name} ({columns})")
+        conn.commit()
+    return redirect(f"/?table={name}")
+
+
+# ===== 🧠 ВЫПОЛНЕНИЕ SQL ЗАПРОСА =====
+@app.route('/query', methods=['POST'])
+def run_query():
+    sql = request.form['query']
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            conn.row_factory = sqlite3.Row
+            cur = conn.cursor()
+            cur.execute(sql)
+            if sql.strip().lower().startswith("select"):
+                rows = cur.fetchall()
+                result = [dict(row) for row in rows]
+                return jsonify(result=result)
+            else:
                 conn.commit()
-        except Exception as e:
-            return f"<p style='color:red;'>Ошибка: {e}</p><a href='/'>Назад</a>"
-    return redirect(url_for('index'))
+                return jsonify(result=[])
+    except Exception as e:
+        return jsonify(error=str(e))
 
-@app.route('/download_db')
-def download_db():
-    return send_file(DB_PATH, as_attachment=True, download_name='database_copy.db')
 
-def open_browser():
-    webbrowser.open_new("http://127.0.0.1:5000")
+# ===== 📊 ER-ДИАГРАММА =====
+@app.route('/er')
+def er_page():
+    diagram = generate_er_diagram()
+    return render_template("er.html", diagram=diagram)
 
+
+def generate_er_diagram():
+    if not os.path.exists(DB_PATH):
+        return "erDiagram\n"
+
+    with sqlite3.connect(DB_PATH) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+        tables = cursor.fetchall()
+
+        diagram = "erDiagram\n"
+
+        for (table,) in tables:
+            cursor.execute(f"PRAGMA table_info({table})")
+            columns = cursor.fetchall()
+            if not columns:
+                continue
+
+            diagram += f"    {table} {{\n"
+            for col in columns:
+                name = col[1]
+                type_ = col[2].split('(')[0].upper()  # убираем (255) и т.д.
+                if name and type_:
+                    diagram += f"        {type_} {name}\n"
+            diagram += f"    }}\n"
+
+        # Добавляем связи по foreign keys
+        for (table,) in tables:
+            cursor.execute(f"PRAGMA foreign_key_list({table})")
+            fks = cursor.fetchall()
+            for fk in fks:
+                ref_table = fk[2]
+                diagram += f"    {table} ||--o{{ {ref_table} : FK\n"
+
+        return diagram
+
+
+
+# ===== 🚀 ЗАПУСК СЕРВЕРА =====
 if __name__ == '__main__':
-    threading.Timer(1.25, open_browser).start()
-    app.run(debug=True)
+    app.run(host="26.201.251.196", port=5000, debug=True)

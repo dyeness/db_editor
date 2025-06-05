@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>SQLite DB Editor</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
 </head>
 <body>
     <header>
@@ -23,6 +24,7 @@
 
             <!-- Скачивание базы -->
             <a href="/download_db" class="btn">💾 Скачать .db</a>
+            <a href="/er" class="btn">📊 ER-диаграмма</a>
         </div>
 
         <hr>
@@ -110,13 +112,16 @@
                 <li>📥 <b>Загрузка базы</b>: выбери .db или перетащи</li>
                 <li>📝 <b>Редактируй</b> → нажимай 💾</li>
                 <li>🧠 <b>SQL-запросы</b>: <code>SELECT * FROM users;</code></li>
+                <li>📊 <b>Диаграмма</b>: отображает структуру таблиц</li>
             </ul>
         </div>
     </div>
 
-    <footer>
-        <p>© 2025 dyeness</p>
-    </footer>
+
+<footer class="sticky-footer">
+    <p>© 2025 dyeness | <a href="https://github.com/dyeness" target="_blank">GitHub</a></p>
+</footer>
+
 
     <script>
     const dropArea = document.getElementById("drop-area");
@@ -144,7 +149,6 @@
         help.style.display = (help.style.display === "none") ? "block" : "none";
     }
 
-    // Терминал SQL-запросов (AJAX)
     const form = document.getElementById('queryForm');
     const terminal = document.getElementById('terminal');
     form.addEventListener('submit', function (e) {
