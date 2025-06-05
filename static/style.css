@@ -97,22 +97,35 @@ input:focus, textarea:focus {
     background: #aa0000;
 }
 
+/* ОБНОВЛЁННЫЙ БЛОК ЗАГРУЗКИ */
 .upload-area {
-    display: inline-block;
-    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
     border: 2px dashed #ff0033;
     border-radius: 10px;
     cursor: pointer;
     text-align: center;
     transition: background 0.3s;
     margin-bottom: 25px;
-    margin-right: 20px;
+    background: rgba(255, 255, 255, 0.02);
 }
 
 .upload-area.dragover {
     background: #2a0000;
 }
 
+.upload-area input[type="file"] {
+    margin: 10px 0;
+    padding: 8px;
+    background: #111;
+    color: #fff;
+    border: 1px solid #444;
+    border-radius: 5px;
+}
+
+/* Таблица */
 .data-table {
     width: 100%;
     border-collapse: collapse;
@@ -126,7 +139,7 @@ input:focus, textarea:focus {
 }
 
 .data-table input {
-    width: 90%;
+    width: 60%;
 }
 
 .main-section {
@@ -221,9 +234,11 @@ pre {
     white-space: nowrap;
     width: 90%;
 }
+
 .error-terminal {
     color: #ff6666;
 }
+
 footer {
     margin-top: 60px;
     padding: 20px;
@@ -234,6 +249,7 @@ footer {
     background: rgba(0, 0, 0, 0.3);
     backdrop-filter: blur(5px);
 }
+
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to   { opacity: 1; transform: translateY(0); }
